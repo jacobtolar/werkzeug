@@ -1264,17 +1264,19 @@ class Headers(Mapping):
 
         # Only the Set-Cookie header appears multiple times; others
         # other repeated headers are joined by ','
-        cookies = []
-        d = {}
+        ret = []
+        indecies = {}
         for k, v in headers:
             if k.lower() == 'set-cookie':
-                cookies.append((k, v))
-            elif k not in d:
-                d[k] = v
+                ret.append((k, v))
             else:
-                d[k] = '%s,%s' % (d[k], v)
+                if k not in d:
+                    d[k] = len(ret)
+                    ret.append((k, v))
+                else:
+                    ret[d[k]] = (k, '%s,%s' % (ret[d[k]][1], v))
 
-        return [(k, v) for k, v in iteritems(d)] + cookies
+        return ret
 
     def copy(self):
         return self.__class__(self._list)
